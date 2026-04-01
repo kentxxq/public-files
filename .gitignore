@@ -1,0 +1,18 @@
+# OS files
+.DS_Store
+Thumbs.db
+*~
+*.swp
+
+# IDE files
+.idea/
+.vscode/
+
+# Packages & Build
+node_modules/
+dist/
+build/
+out/
+
+# Environment
+.env*
