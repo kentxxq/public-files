@@ -24,6 +24,8 @@ description: '调用 Apifox MCP 处理 projectId 查询项目结构信息、根�
 - `mcp_apifox_getProjectSummary` 中的 `schemaFolderCount` 只能说明“schema 目录数量”，不能据此断言项目里没有数据模型
 - 查询项目内数据模型时，优先通过 OpenAPI 端点查询 `api-schemas` 列表和详情，不要只看项目结构摘要
 - 接口字段引用数据模型时，`$ref` 必须使用 schema ID，例如 `#/definitions/277244771`，不要写成 `#/definitions/resultStatus` 这类模型名引用
+- 配置 Mock 时，优先使用字段级 `x-apifox-mock`；只有字段级动态值不够用时，再考虑 Mock 期望或 mockScript
+- 枚举模型引用字段通常不需要额外配置 Mock；例如统一返回中的 `code` 应直接引用 `resultStatus`，不要再叠加字段级 mock
 - 当工具没有“按 URL 直接搜索接口”的固定能力时，要明确告知限制，不要假装能一步命中
 
 ## 工作流 1：通过 projectId 查询特定项目的所有信息
@@ -190,6 +192,149 @@ description: '调用 Apifox MCP 处理 projectId 查询项目结构信息、根�
 - 不要写成 `"$ref": "#/definitions/resultStatus"`，这会在 Apifox 中变成坏引用
 - `responses` 字段本身是 JSON 字符串数组，但每个响应项里的 `jsonSchema` 应写成 JSON 对象结构，而不是再包一层字符串
 
+### 统一返回模型
+
+当项目约定统一返回结构时，优先复用同一个顶层包裹模型，不要每个接口各写一套风格。
+
+当前已确认的统一返回规范如下：
+
+- `code`：引用 `resultStatus` 枚举模型
+- `msg`：`string`
+- `data`：泛型数据位，根据接口真实业务变化，可能是 `string`、`object`、`integer`、`boolean`、`array`，也可能是更深层嵌套对象
+
+### 统一返回模型的约束
+
+- 顶层结构固定为 `code`、`msg`、`data`
+- `code` 始终写成对 `resultStatus` 的 `$ref`
+- `msg` 默认为字符串，不要改成对象或数组
+- `data` 的类型由当前接口语义决定，不要因为项目有统一返回包装，就把所有接口都强行写成 `string`
+- 当 `data` 是对象或嵌套结构时，应在 `data` 下继续细化 `properties`
+- 当 `data` 是数组时，应把 `data.type` 写成 `array`，并补 `items`
+
+### 统一返回模型示例
+
+#### data 为 string
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "code": {
+      "$ref": "#/definitions/277244771"
+    },
+    "msg": {
+      "type": "string"
+    },
+    "data": {
+      "type": "string"
+    }
+  },
+  "required": ["code", "msg", "data"]
+}
+```
+
+#### data 为 object
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "code": {
+      "$ref": "#/definitions/277244771"
+    },
+    "msg": {
+      "type": "string"
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": ["code", "msg", "data"]
+}
+```
+
+#### data 为 integer 或 boolean
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "code": {
+      "$ref": "#/definitions/277244771"
+    },
+    "msg": {
+      "type": "string"
+    },
+    "data": {
+      "type": "integer"
+    }
+  },
+  "required": ["code", "msg", "data"]
+}
+```
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "code": {
+      "$ref": "#/definitions/277244771"
+    },
+    "msg": {
+      "type": "string"
+    },
+    "data": {
+      "type": "boolean"
+    }
+  },
+  "required": ["code", "msg", "data"]
+}
+```
+
+#### data 为数组或嵌套对象
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "code": {
+      "$ref": "#/definitions/277244771"
+    },
+    "msg": {
+      "type": "string"
+    },
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "profile": {
+            "type": "object",
+            "properties": {
+              "nickname": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": ["code", "msg", "data"]
+}
+```
+
 ### 响应引用模型示例
 
 ```json
@@ -301,6 +446,66 @@ description: '调用 Apifox MCP 处理 projectId 查询项目结构信息、根�
 3. 使用 `"$ref": "#/definitions/{schemaId}"`，不要使用模型名。
 4. 如果 Apifox 页面报 `Reference not found`，优先检查引用是否写成了模型名，或 schema ID 是否来自当前项目。
 
+## 工作流 5：配置字段级 Mock
+
+当用户要求“给接口配 Mock”“给某几个字段生成动态值”“图片返回随机在线地址”时，优先使用字段级 `x-apifox-mock`，不要默认上 mockScript。
+
+### 推荐流程
+
+1. 先读取接口详情，确认当前 `responses.jsonSchema` 的真实结构。
+2. 只给需要 Mock 的字段补 `x-apifox-mock`，不要改动无关字段。
+3. 如果字段本身已经引用枚举或数据模型，先判断是否真的需要 Mock。
+4. 更新后立即重新读取接口详情，确认 `x-apifox-mock` 已落到对应字段。
+
+### 字段级 Mock 规则
+
+- 优先使用简单值或 Faker 动态值，例如 `success`、`{{$person.firstName}}`
+- 图片地址优先使用 Faker 的在线图片 URL，而不是固定假地址
+- 如果字段是枚举模型引用，例如 `code -> resultStatus`，默认不额外写 `x-apifox-mock`
+- `msg` 这类稳定字段可以直接写固定值，如 `success`
+- 只有字段级 Mock 无法满足时，再考虑 Mock 期望或 mockScript
+
+### 常用写法
+
+- 固定字符串：`success`
+- 姓名：`{{$person.firstName}}`
+- 邮箱：`{{$internet.email}}`
+- 在线图片：`{{$image.urlPicsumPhotos(width=640,height=480)}}`
+
+### 统一返回模型下的 Mock 建议
+
+- `code`：不写字段级 Mock，保留对 `resultStatus` 的引用
+- `msg`：通常可写固定值 `success`
+- `data`：按真实业务类型补 Mock
+
+如果 `data` 是图片 URL，推荐这样写：
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "code": {
+      "$ref": "#/definitions/277244771"
+    },
+    "msg": {
+      "type": "string",
+      "x-apifox-mock": "success"
+    },
+    "data": {
+      "type": "string",
+      "x-apifox-mock": "{{$image.urlPicsumPhotos(width=640,height=480)}}"
+    }
+  },
+  "required": ["code", "msg", "data"]
+}
+```
+
+### 不推荐的做法
+
+- 给 `code` 这种枚举引用字段再叠加随机数 Mock
+- 图片 URL 写死成单个固定值，导致每次 Mock 都一样
+- 在只需字段级动态值时直接上 mockScript，增加排查成本
+
 ## 推荐执行顺序
 
 ### 查询项目
@@ -328,9 +533,16 @@ description: '调用 Apifox MCP 处理 projectId 查询项目结构信息、根�
 2. `mcp_apifox_executeOpenApi` 调用 `GET /api/v1/api-schemas`
 3. 必要时 `mcp_apifox_executeOpenApi` 调用 `GET /api/v1/api-schemas/{schema_id}`
 
+### 配置字段级 Mock
+
+1. `mcp_apifox_getHttpEndpoint` 读取当前接口详情
+2. `mcp_apifox_updateHttpEndpoint` 只更新目标响应字段的 `x-apifox-mock`
+3. `mcp_apifox_getHttpEndpoint` 回读确认
+
 ## 输出要求
 
 - 对外回答时，明确区分“项目结构信息”和“单个接口详情”
 - 对外回答时，明确区分“schema 目录结构”和“数据模型列表/详情”
+- 对外回答时，如果接口采用统一返回模型，要明确说明 `code`、`msg`、`data` 的固定约束和 `data` 的实际类型
 - 如果工具能力不足以通过 URL 直接定位接口，要直接说明限制
 - 如果缺少 projectId、folderId、httpApiId、schemaId 等关键 ID，先补齐上下文，不要猜
