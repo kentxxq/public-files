@@ -49,6 +49,10 @@ vpx skills add kentxxq/public-files --skill <skill-name>
 
 vpx skills add kentxxq/public-files -s ken-commit-push -s ken-release
 vpx skills add kentxxq/public-files --skill ken-commit-push --skill ken-release
+
+vpx skills add kentxxq/public-files -s ken-commit-push -s ken-release -g -a zed
 ```
 
+> 配合使用 -g 和 -a 。20260827实测codex app也会读取`~/.agents/skills/`目录下的Skill。
 > -g 参数：安装到全局目录
+> -a 参数：安装到特定agent。codex(~/.codex/skills/), zed(~/.agents/skills/)
