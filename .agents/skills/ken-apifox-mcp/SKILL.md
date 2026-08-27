@@ -1,6 +1,6 @@
 ---
-name: apifox-mcp
-description: '调用 Apifox MCP 处理 projectId 查询项目结构信息、根据 projectId 和接口 URL 查找接口、查询项目内数据模型、创建或更新 HTTP 接口。适用于 Apifox 项目检索、接口定位、数据模型检索、文档维护、接口新增。关键词: apifox, mcp, projectId, url, path, endpoint, schema, data model, create http endpoint.'
+name: ken-apifox-mcp
+description: '仅在项目明确说明在使用 apifox 进行接口开发的情况下使用。通过调用 Apifox MCP 可以用 projectId 查询项目结构信息、接口 URL 查找接口、查询项目内数据模型、创建或更新 HTTP 接口。'
 ---
 
 # Apifox MCP Skill
