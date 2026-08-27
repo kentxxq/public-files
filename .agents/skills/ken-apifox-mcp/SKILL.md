@@ -1,6 +1,12 @@
 ---
 name: ken-apifox-mcp
 description: '仅在项目明确说明在使用 apifox 进行接口开发的情况下使用。通过调用 Apifox MCP 可以用 projectId 查询项目结构信息、接口 URL 查找接口、查询项目内数据模型、创建或更新 HTTP 接口。'
+
+# deepseek
+user-invocable: true # 可选，true 才能被 /name 触发
+
+# vscode 指定模型
+model: deepseek-v4-pro-sd (customendpoint)
 ---
 
 # Apifox MCP Skill
