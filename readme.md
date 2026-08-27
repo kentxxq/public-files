@@ -47,6 +47,8 @@ vpx skills add kentxxq/public-files
 ```text
 vpx skills add kentxxq/public-files --skill <skill-name>
 
+vpx skills add kentxxq/public-files -s ken-commit-push -s ken-release
 vpx skills add kentxxq/public-files --skill ken-commit-push --skill ken-release
 ```
 
+> -g 参数：安装到全局目录
