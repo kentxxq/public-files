@@ -6,7 +6,7 @@ description: '仅在项目明确说明在使用 apifox 进行接口开发的情�
 user-invocable: true # 可选，true 才能被 /name 触发
 
 # vscode 指定模型
-model: deepseek-v4-pro-sd (customendpoint)
+model: deepseek-flash-sd (customendpoint)
 ---
 
 # Apifox MCP Skill

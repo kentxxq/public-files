@@ -6,7 +6,7 @@ description: 当用户手动触发，禁止自动执行！用于将代码变更�
 user-invocable: true # 可选，true 才能被 /name 触发
 
 # vscode 指定模型
-model: deepseek-v4-pro-sd (customendpoint)
+model: deepseek-flash-sd (customendpoint)
 ---
 
 # Git 提交与推送流程
