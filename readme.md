@@ -31,6 +31,8 @@
 
 | Skill 名称 | 说明 |
 | --- | --- |
+| `design` | 编写和维护设计文档，记录系统架构、模块职责、数据流、业务规则和关键决策 |
+| `review` | 代码审查：检查代码与设计的一致性、性能与架构问题、代码质量与可维护性 |
 | `ken-release` | 发布更新流程：更新版本号、README、CHANGELOG 等文件，不做任何 git 操作 |
 | `ken-commit-push` | 代码变更提交并推送到远端仓库 |
 | `ken-apifox-mcp` | 调用 Apifox MCP 查询项目结构、定位接口、管理数据模型、创建/更新 HTTP 接口 |
@@ -56,3 +58,9 @@ vpx skills add kentxxq/public-files -s ken-commit-push -s ken-release -g -a zed
 > 配合使用 -g 和 -a 。20260827实测codex app也会读取`~/.agents/skills/`目录下的Skill。
 > -g 参数：安装到全局目录
 > -a 参数：安装到特定agent。codex(~/.codex/skills/), zed(~/.agents/skills/)
+
+### 常用
+
+```text
+vpx skills add kentxxq/public-files -s ken-commit-push -s ken-release -s design -s review
+```
