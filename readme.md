@@ -40,15 +40,16 @@
 
 ### 安装全部 Skill
 
-```text
+```shell
 vpx skills add kentxxq/public-files
 ```
 
 ### 按需安装单个 Skill
 
-```text
+```shell
 vpx skills add kentxxq/public-files --skill <skill-name>
 
+# 全局用的
 vpx skills add kentxxq/public-files -s ken-commit-push -s ken-release
 vpx skills add kentxxq/public-files --skill ken-commit-push --skill ken-release
 
@@ -61,6 +62,7 @@ vpx skills add kentxxq/public-files -s ken-commit-push -s ken-release -g -a zed
 
 ### 常用
 
-```text
-vpx skills add kentxxq/public-files -s ken-commit-push -s ken-release -s design -s review
+```shell
+# ai项目用的
+vpx skills add kentxxq/public-files -s design -s review
 ```
