@@ -64,5 +64,5 @@ vpx skills add kentxxq/public-files -s ken-commit-push -s ken-release -g -a zed
 
 ```shell
 # ai项目用的
-vpx skills add kentxxq/public-files -s design -s review
+vpx skills add kentxxq/public-files -s design -s review -s test -s refactor
 ```
